@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NexturaStore</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loading-overlay"><div class="spinner"></div></div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2>Masuk ke Nextura<span>Store</span></h2>
+            <p>Silakan masuk untuk melanjutkan belanja.</p>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required placeholder="nama@email.com">
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary" id="btn-login">Masuk</button>
+            </form>
+
+            <button class="btn btn-google" id="btn-google">
+                <i class="fab fa-google"></i> Masuk dengan Google
+            </button>
+
+            <div class="auth-links">
+                Belum punya akun? <a href="register.html">Daftar di sini</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, googleProvider, signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from './firebase.js';
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loginForm = document.getElementById('login-form');
+        const btnGoogle = document.getElementById('btn-google');
+
+        // Check Auth State
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = "index.html"; // Redirect ke home jika sudah login
+            } else {
+                loadingOverlay.style.display = 'none'; // Sembunyikan loading jika belum login
+            }
+        });
+
+        // Email & Password Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loadingOverlay.style.display = 'flex';
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                // Redirect diatur oleh onAuthStateChanged
+            } catch (error) {
+                loadingOverlay.style.display = 'none';
+                alert("Login gagal: " + error.message);
+            }
+        });
+
+        // Google Login
+        btnGoogle.addEventListener('click', async () => {
+            loadingOverlay.style.display = 'flex';
+            try {
+                await signInWithPopup(auth, googleProvider);
+                // Redirect diatur oleh onAuthStateChanged
+            } catch (error) {
+                loadingOverlay.style.display = 'none';
+                alert("Google Login gagal: " + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
