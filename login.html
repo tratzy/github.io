@@ -14,7 +14,8 @@
         <div class="auth-card">
             <h2>Masuk ke Nextura<span>Store</span></h2>
             <p>Silakan masuk untuk melanjutkan belanja.</p>
-            
+            <div id="error-message" class="error-box"></div>
+
             <form id="login-form">
                 <div class="input-group">
                     <label for="email">Email</label>
@@ -63,9 +64,43 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 // Redirect diatur oleh onAuthStateChanged
-            // Ganti bagian catch di loginForm.addEventListener Anda dengan ini:
+            // Bagian ini diletakkan di dalam block 'catch'
+} catch (error) {
+    loadingOverlay.style.display = 'none'; // Matikan loading spinner
+    
+    const errorDiv = document.getElementById('error-message');
+    let message = "Terjadi kesalahan. Coba lagi.";
+
+    // Cek jenis error dari Firebase
+    if (error.code === 'auth/invalid-credential') {
+        message = "Email atau sandi salah. Cek kembali ya!";
+    } else if (error.code === 'auth/too-many-requests') {
+        message = "Terlalu banyak percobaan. Tunggu sebentar.";
+    }
+
+    // Masukkan tulisan ke dalam kotak error
+    errorDiv.textContent = message;
+    
+    // Munculkan kotaknya (tadinya 'none' jadi 'block')
+    errorDiv.style.display = 'block';
+
+    // Hilangkan otomatis setelah 5 detik supaya tidak menutupi layar terus
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
+}
+
+        });
+
+        // Google Login
+        btnGoogle.addEventListener('click', async () => {
+            loadingOverlay.style.display = 'flex';
+            try {
+                await signInWithPopup(auth, googleProvider);
+                // Redirect diatur oleh onAuthStateChanged
+// Ganti bagian catch di loginForm.addEventListener Anda dengan ini:
                 } catch (error) {
-        loadingOverlay.style.display = 'none';
+    loadingOverlay.style.display = 'none';
     
     let errorMessage = "Terjadi kesalahan saat login.";
 
@@ -93,18 +128,6 @@
     alert(errorMessage);
 }
 
-        });
-
-        // Google Login
-        btnGoogle.addEventListener('click', async () => {
-            loadingOverlay.style.display = 'flex';
-            try {
-                await signInWithPopup(auth, googleProvider);
-                // Redirect diatur oleh onAuthStateChanged
-            } catch (error) {
-                loadingOverlay.style.display = 'none';
-                alert("Google Login gagal: " + error.message);
-            }
         });
     </script>
 </body>
