@@ -7,13 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="loading-overlay"><div class="spinner"></div></div>
+    <div id="loading-overlay" style="display: none;"><div class="spinner"></div></div>
 
     <div class="auth-container">
         <div class="auth-card">
             <h2>Daftar Nextura<span>Store</span></h2>
             <p>Buat akun baru untuk mulai berbelanja.</p>
             
+            <div id="error-message" class="error-box"></div>
+
             <form id="register-form">
                 <div class="input-group">
                     <label for="email">Email</label>
@@ -35,26 +37,56 @@
     <script type="module">
         import { auth, createUserWithEmailAndPassword, onAuthStateChanged } from './firebase.js';
 
-        const loadingOverlay = document.getElementById('loading-overlay');
         const registerForm = document.getElementById('register-form');
+        const errorDiv = document.getElementById('error-message');
+        const loadingOverlay = document.getElementById('loading-overlay');
 
+        // Proteksi: Kalau sudah login, lempar ke home
         onAuthStateChanged(auth, (user) => {
             if (user) window.location.href = "index.html";
-            else loadingOverlay.style.display = 'none';
         });
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Sembunyikan error lama & tampilkan loading
+            errorDiv.style.display = 'none';
             loadingOverlay.style.display = 'flex';
+
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
-                // Redirect otomatis dari onAuthStateChanged
+                // Berhasil: Redirect diurus oleh onAuthStateChanged
             } catch (error) {
                 loadingOverlay.style.display = 'none';
-                alert("Registrasi gagal: " + error.message);
+                
+                let message = "Gagal mendaftar. Silakan coba lagi.";
+
+                // Filter Error Firebase
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        message = "Email ini sudah terdaftar. Pakai email lain atau langsung login.";
+                        break;
+                    case 'auth/weak-password':
+                        message = "Sandi terlalu lemah. Minimal harus 6 karakter ya.";
+                        break;
+                    case 'auth/invalid-email':
+                        message = "Format email salah. Cek lagi penulisannya.";
+                        break;
+                    default:
+                        message = "Error: " + error.message;
+                }
+
+                // Tampilkan ke halaman
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+
+                // Hilangkan pesan setelah 5 detik
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 5000);
             }
         });
     </script>
