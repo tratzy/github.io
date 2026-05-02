@@ -12,7 +12,7 @@ import {
 
 // Ganti dengan konfigurasi Firebase Anda
 const firebaseConfig = {
-  apiKey: "AIzaSyBEPnglAGgeJxho9kfdM5d1Bh",
+  apiKey: "AIzaSyBEPnglAGgeJxho9kfdM5d1Bhwlq-9dGDw",
   authDomain: "nexstore-f286a.firebaseapp.com",
   projectId: "nexstore-f286a",
   storageBucket: "nexstore-f286a.appspot.com",
