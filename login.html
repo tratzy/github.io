@@ -63,10 +63,36 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 // Redirect diatur oleh onAuthStateChanged
-            } catch (error) {
-                loadingOverlay.style.display = 'none';
-                alert("Login gagal: " + error.message);
-            }
+            // Ganti bagian catch di loginForm.addEventListener Anda dengan ini:
+                } catch (error) {
+        loadingOverlay.style.display = 'none';
+    
+    let errorMessage = "Terjadi kesalahan saat login.";
+
+    // Pemetaan error Firebase ke bahasa Indonesia yang lebih ramah
+    switch (error.code) {
+        case 'auth/invalid-credential':
+            errorMessage = "Email atau sandi yang Anda masukkan salah. Silakan periksa kembali.";
+            break;
+        case 'auth/user-not-found':
+            errorMessage = "Akun tidak ditemukan. Silakan daftar terlebih dahulu.";
+            break;
+        case 'auth/wrong-password':
+            errorMessage = "Sandi yang Anda masukkan salah.";
+            break;
+        case 'auth/invalid-email':
+            errorMessage = "Format email tidak valid.";
+            break;
+        case 'auth/too-many-requests':
+            errorMessage = "Terlalu banyak percobaan login. Silakan coba lagi nanti.";
+            break;
+        default:
+            errorMessage = "Gagal masuk: " + error.message;
+    }
+
+    alert(errorMessage);
+}
+
         });
 
         // Google Login
